@@ -11,8 +11,13 @@
 using namespace std;
 
 // Function Prototypes
-void memoryManager(int, int);
+void memoryManager( int, int);
 int allocate( int, int);
+int deallocate( int );
+int write( int, int);
+int read( int, int);
+void printMemory();
+void runCommands(string);
 
 struct page 
 {
@@ -37,10 +42,7 @@ int main()
 {
 
     cout << "Hello World\n";
-    process p;
-    p.pid =1;
-    p.size =2;
-    processList.insert(processList.end(), p);
+
     memoryManager(10, 1);
     cout << "Allocate: "<< allocate(2,1);
 
@@ -77,13 +79,13 @@ int allocate(int allocSize, int pid)
         
     }
 
-    int processListIndex =0;
     for (int i =0; i < processList.size(); i++)
     {
         if(processList[i].pid == pid)
         {
-            processListIndex = i;
-            break;
+            cout << "Process: " << pid << " is already in use." << endl;
+            return -1;
+            
         }
     }
 
@@ -95,17 +97,45 @@ int allocate(int allocSize, int pid)
     }
     else
     {
-        processList[processListIndex].pageTable = new page[allocSize];
+        process newProcess = {.pid = pid, .size = allocSize};
+        newProcess.pageTable = new page[allocSize];
         for(int i =0; i < allocSize; i++)
         {
             int randomFrame = rand() % freeFrameList.size();
-            processList[processListIndex].pageTable[i].frame = randomFrame;
+            newProcess.pageTable[i].frame = randomFrame;
             freeFrameList.erase(freeFrameList.begin() + randomFrame);
             memory[randomFrame] = pid;
+            
+            processList.insert(processList.end(), newProcess);
 
         }
     }
 
 
     return 1;
+}
+
+int deallocate( int pid)
+{
+
+}
+
+int write( int pid, int logical_address)
+{
+
+}
+
+int read( int pid, int logical_address)
+{
+
+}
+
+void printMemory()
+{
+
+}
+
+void runCommands(string command)
+{
+    
 }
