@@ -2,14 +2,13 @@
 // Nate O'Meara
 // Due 11/21/2021
 
+// Libraries
 #include <iostream>
 #include <iomanip>
-#include <fstream>
 #include <unistd.h>
 #include <vector>
 #include <string>
 #include <sstream>
-
 
 using namespace std;
 
@@ -22,6 +21,8 @@ int read( int, int);
 void printMemory();
 void runCommands(string);
 
+
+// Global Variables
 struct process
 {
     int pid;
@@ -29,7 +30,6 @@ struct process
     vector<int> pageTable;
 };
 
-// Global Variables
 vector<int> freeFrameList;
 vector<process> processList;
 vector<int> memory;
@@ -38,6 +38,7 @@ vector<int> memory;
 int main()
 {
 
+    // get the command from user and loop
     string command = "";
     cout << "Enter a command or exit to quit: ";
     getline(cin, command);
@@ -54,12 +55,9 @@ int main()
     return 0;
 }
 
+// initialize memory and freeFrameList
 void memoryManager(int memSize, int frameSize)
 {
-
-    // we need allocated memory
-    // we need a list of free frames
-
     for (int i = 0; i < memSize; i++)
     {
         memory.push_back(0);
@@ -71,6 +69,7 @@ void memoryManager(int memSize, int frameSize)
 
 int allocate(int allocSize, int pid)
 {
+    // check if process is already allocated
     for (int i =0; i < processList.size(); i++)
     {
         if(processList[i].pid == pid)
@@ -92,6 +91,7 @@ int allocate(int allocSize, int pid)
         process newProcess = {.pid = pid, .size = allocSize};
         for(int i =0; i < allocSize; i++)
         {
+            // add page to pageTable and set to random free frame
             int randomFrame = rand() % freeFrameList.size();
             newProcess.pageTable.push_back(freeFrameList[randomFrame]);
             freeFrameList.erase(freeFrameList.begin() + randomFrame);         
@@ -109,7 +109,7 @@ int deallocate( int pid)
 {
 
      int processIndex = -1;
-
+    // Find the index of PID from process list
     for (int i = 0; i < processList.size(); i++)
     {
         if(processList[i].pid == pid)
@@ -118,11 +118,14 @@ int deallocate( int pid)
         }
     }
 
+    //check if valid PID
     if(processIndex == -1)
     {
         cout << "\nNo process found with id of: "<<pid << endl;
         return -1;
     }
+
+    // add allocated frames to the freeFrameList and erase process
     int frameNum = 0;
     for(int x = 0; x < processList[processIndex].size; x++)
     {
@@ -153,6 +156,7 @@ int write( int pid, int logical_address)
     }
 
 
+    // check if PID exists and if logical_address exists
     if(processIndex == -1)
     {
         cout << "\nNo process found with id of: "<<pid << endl;
@@ -178,6 +182,7 @@ int read( int pid, int logical_address)
 
     int processIndex = 0;
 
+    // check if PID exists and if logical_address exists
     if(processIndex == -1)
     {
         cout << "\nNo process found with id of: "<<pid << endl;
