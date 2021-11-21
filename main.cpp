@@ -22,17 +22,11 @@ int read( int, int);
 void printMemory();
 void runCommands(string);
 
-struct page 
-{
-    int number;
-    int pid;
-    int frame;
-};
 struct process
 {
     int pid;
     int size;
-    page* pageTable;
+    vector<int> pageTable;
 };
 
 // Global Variables
@@ -95,13 +89,12 @@ int allocate(int allocSize, int pid)
     }
     else
     {
-        process newProcess = {.pid = pid, .size = allocSize, .pageTable = new page[allocSize]};
+        process newProcess = {.pid = pid, .size = allocSize};
         for(int i =0; i < allocSize; i++)
         {
             int randomFrame = rand() % freeFrameList.size();
-            newProcess.pageTable[i].frame = randomFrame;
-            freeFrameList.erase(freeFrameList.begin() + randomFrame);
-            
+            newProcess.pageTable.push_back(freeFrameList[randomFrame]);
+            freeFrameList.erase(freeFrameList.begin() + randomFrame);         
 
         }
 
@@ -130,15 +123,15 @@ int deallocate( int pid)
         cout << "\nNo process found with id of: "<<pid << endl;
         return -1;
     }
-
+    int frameNum = 0;
     for(int x = 0; x < processList[processIndex].size; x++)
-            {
-                int frameNum = processList[processIndex].pageTable[x].frame;
-                freeFrameList.push_back(frameNum);
+    {
+        frameNum = processList[processIndex].pageTable[x];
+        freeFrameList.push_back(frameNum);
 
-            }
+    }
 
-            processList.erase(processList.begin() + processIndex);
+     processList.erase(processList.begin() + processIndex);
 
     return 1;
 
@@ -171,7 +164,7 @@ int write( int pid, int logical_address)
         return -1;
     }
     
-    int frameIndex = processList[processIndex].pageTable[logical_address].frame;
+    int frameIndex = processList[processIndex].pageTable[logical_address];
     memory[frameIndex] = value;
 
     return 1;
@@ -204,7 +197,7 @@ int read( int pid, int logical_address)
         }
     }
     
-    int frameIndex = processList[processIndex].pageTable[logical_address].frame;
+    int frameIndex = processList[processIndex].pageTable[logical_address];
     value = memory[frameIndex];
 
     cout << "The value from logical_address " << logical_address << " in process " << pid << " is: " << value << endl; 
